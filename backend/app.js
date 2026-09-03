@@ -1,19 +1,28 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config(); // Load env variables
 
-const config = require('./config/env');
+const app = express();
+
+// Middleware
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
+app.use(express.json()); // Wajib ada agar req.body bisa terbaca
+app.use(express.urlencoded({ extended: true }));
+
+// Import Routes
 const healthRoutes = require('./routes/health.routes');
-
 const authRoutes = require('./routes/auth.routes');
 const scheduleRoutes = require('./routes/schedule.routes');
 const bookingRoutes = require('./routes/booking.routes');
 
+// Daftarkan Endpoint / Routes
 app.use('/health', healthRoutes);
-// Daftarkan endpoint-nya di sini
 app.use('/api/auth', authRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/bookings', bookingRoutes);
 
-app.listen(config.port, () => {
-  console.log(`Backend jalan di http://localhost:${config.port}`);
+// Jalankan Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`[Backend] Server berhasil jalan di port ${PORT}`);
 });
