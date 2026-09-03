@@ -14,12 +14,14 @@ const healthRoutes = require('./routes/health.routes');
 const authRoutes = require('./routes/auth.routes');
 const scheduleRoutes = require('./routes/schedule.routes');
 const bookingRoutes = require('./routes/booking.routes');
+const chatRoutes = require('./routes/chat.routes');
 
 // Daftarkan Endpoint / Routes
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Jalankan Server
 const PORT = process.env.PORT || 3000;
