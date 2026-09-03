@@ -4,22 +4,25 @@ import Booking from '../pages/Booking';
 import LoginAdmin from '../pages/LoginAdmin';
 import DashboardAdmin from '../pages/DashboardAdmin';
 
-/**
- * Semua route halaman didaftarin di sini. App.jsx cuma manggil
- * <AppRoutes /> ini, gak perlu tau detail path apa aja yang ada -
- * kalo nambah halaman baru, cukup import + tambah <Route> di sini.
- */
+// Tambahan 3 halaman baru
+import ChatbotPage from '../pages/ChatbotPage';
+import JadwalLapangan from '../pages/JadwalLapangan';
+import KategoriOlahraga from '../pages/KategoriOlahraga';
+
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/booking" element={<Booking />} />
       
-      {/* Route untuk Admin */}
+      {/* Route Publik */}
+      <Route path="/chat" element={<ChatbotPage />} />
+      <Route path="/jadwal" element={<JadwalLapangan />} />
+      <Route path="/kategori" element={<KategoriOlahraga />} />
+
+      {/* Route Admin */}
       <Route path="/login" element={<LoginAdmin />} />
       <Route path="/admin/dashboard" element={<DashboardAdmin />} />
-      
-      {/* Route Chatbot, Jadwal, dan Kategori akan kita tambahkan di sini nanti */}
     </Routes>
   );
 }
