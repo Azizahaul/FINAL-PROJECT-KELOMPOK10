@@ -31,3 +31,28 @@ exports.createSchedule = async (req, res) => {
     return sendResponse(res, { code: 500, success: false, message: 'Gagal menambah jadwal', data: error.message });
   }
 };
+
+exports.searchSchedules = async (req, res) => {
+  try {
+    const { tanggal } = req.query;
+    
+    let query = `
+      SELECT s.*, f.nama as nama_lapangan 
+      FROM schedules s 
+      JOIN fields f ON s.field_id = f.id 
+      WHERE s.status = 'tersedia'
+    `;
+    const params = [];
+
+    // Jika ada parameter tanggal dari chatbot/frontend
+    if (tanggal) {
+      query += ` AND s.tanggal = $1`;
+      params.push(tanggal);
+    }
+
+    const { rows } = await db.query(query, params);
+    return sendResponse(res, { code: 200, success: true, message: 'Jadwal tersedia ditemukan', data: rows });
+  } catch (error) {
+    return sendResponse(res, { code: 500, success: false, message: 'Gagal mencari jadwal', data: error.message });
+  }
+};
