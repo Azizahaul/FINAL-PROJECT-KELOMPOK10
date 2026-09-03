@@ -5,4 +5,5 @@ const bookingController = require('../controllers/booking.controller');
 
 router.post('/', bookingController.createBooking);
 
+router.put('/:id/validate', bookingController.validateBooking);
 module.exports = router;

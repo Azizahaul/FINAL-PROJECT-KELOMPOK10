@@ -20,3 +20,25 @@ exports.createBooking = async (req, res) => {
     return sendResponse(res, { code: 500, success: false, message: 'Gagal membuat pemesanan', data: error.message });
   }
 };
+
+exports.validateBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body; // Isinya: 'dikonfirmasi' atau 'dibatalkan'
+
+    // 1. Update status pemesanan
+    await db.query('UPDATE bookings SET status = $1 WHERE id = $2', [status, id]);
+
+    // 2. Jika dikonfirmasi, kunci jadwalnya menjadi 'terisi'
+    if (status === 'dikonfirmasi') {
+      const { rows } = await db.query('SELECT schedule_id FROM bookings WHERE id = $1', [id]);
+      if (rows.length > 0) {
+        await db.query('UPDATE schedules SET status = $1 WHERE id = $2', ['terisi', rows[0].schedule_id]);
+      }
+    }
+
+    return sendResponse(res, { code: 200, success: true, message: `Pemesanan berhasil ${status}`, data: null });
+  } catch (error) {
+    return sendResponse(res, { code: 500, success: false, message: 'Gagal memvalidasi pemesanan', data: error.message });
+  }
+};
