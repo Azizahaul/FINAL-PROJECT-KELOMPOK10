@@ -1,24 +1,23 @@
 import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
-import Booking from '../pages/Booking';
 import LoginAdmin from '../pages/LoginAdmin';
 import DashboardAdmin from '../pages/DashboardAdmin';
 
-// Tambahan 3 halaman baru
+// Halaman Fitur Aktif
 import ChatbotPage from '../pages/ChatbotPage';
 import JadwalLapangan from '../pages/JadwalLapangan';
-import KategoriOlahraga from '../pages/KategoriOlahraga';
+import VenueDetail from '../pages/VenueDetail';
+import CekStatus from '../pages/CekStatus';
 
 function AppRoutes() {
   return (
     <Routes>
+      {/* Route Utama & Publik */}
       <Route path="/" element={<Home />} />
-      <Route path="/booking" element={<Booking />} />
-      
-      {/* Route Publik */}
+      <Route path="/venue" element={<VenueDetail />} />
+      <Route path="/status" element={<CekStatus />} />
       <Route path="/chat" element={<ChatbotPage />} />
       <Route path="/jadwal" element={<JadwalLapangan />} />
-      <Route path="/kategori" element={<KategoriOlahraga />} />
 
       {/* Route Admin */}
       <Route path="/login" element={<LoginAdmin />} />

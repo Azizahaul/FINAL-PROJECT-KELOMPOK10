@@ -1,202 +1,138 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 import Chatbot from '../components/Chatbot';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [schedules, setSchedules] = useState([]);
-  const [searchDate, setSearchDate] = useState('');
+  const [aiQuery, setAiQuery] = useState('');
+  const [aiResponse, setAiResponse] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch data jadwal/lapangan yang tersedia dari backend
-  useEffect(() => {
-    fetch('http://localhost:3000/api/schedules')
-      .then((res) => res.json())
-      .then((result) => {
-        if (result.success) {
-          setSchedules(result.data);
-        }
-      })
-      .catch((err) => console.error('Gagal memuat data lapangan:', err));
-  }, []);
+  const fields = [
+    { id: 1, name: 'Lapangan A - Arena Utama', type: 'Futsal / Mini Soccer', price: 'Rp 150.000 / jam', foto: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80', fasilitas: 'Rumput Sintetis Premium, Lampu LED Sorot' },
+    { id: 2, name: 'Lapangan B - Semi Indoor', type: 'Futsal', price: 'Rp 125.000 / jam', foto: 'https://images.unsplash.com/photo-1529900748604-07564a03e7a6?auto=format&fit=crop&w=800&q=80', fasilitas: 'Atap Pelindung Hujan, Interlock Flooring' },
+    { id: 3, name: 'Lapangan C - Outdoor Pro', type: 'Mini Soccer', price: 'Rp 135.000 / jam', foto: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80', fasilitas: 'Rumput Standar FIFA, Area Penonton Luas' },
+  ];
 
-  const handleSearch = (e) => {
+  const handleAskAI = async (e) => {
     e.preventDefault();
-    // Jika user cari berdasarkan tanggal, arahkan atau filter
-    if (searchDate) {
-      navigate(`/booking?date=${searchDate}`);
-    } else {
-      navigate('/booking');
+    if (!aiQuery.trim()) return;
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:3000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: aiQuery })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAiResponse(data.data.reply);
+      }
+    } catch (err) {
+      setAiResponse('Gagal terhubung ke AI Nia.');
     }
+    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#141c18] text-white font-sans selection:bg-[#c2fd52] selection:text-black">
-      {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-8 py-6 border-b border-white/10 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[#c2fd52] flex items-center justify-center font-bold text-black text-sm">
-            ⚽
-          </div>
-          <span className="font-bold tracking-wider text-lg">ARENA<span className="text-[#c2fd52]">NIAS</span></span>
-        </div>
-        <div className="hidden md:flex gap-8 text-sm text-gray-300">
-          <a href="#lapangan" className="hover:text-[#c2fd52] transition">Cari Lapangan</a>
-          <a href="#fitur" className="hover:text-[#c2fd52] transition">Fitur AI Nia</a>
-          <a href="#kontak" className="hover:text-[#c2fd52] transition">Kontak</a>
-        </div>
-        <button 
-          onClick={() => navigate('/booking')} 
-          className="bg-transparent border border-white/20 px-5 py-2 rounded-full text-sm font-medium hover:bg-white hover:text-black transition"
-        >
-          Masuk / Booking
-        </button>
-      </nav>
+    <div className="min-h-screen bg-[#141c18] text-white font-sans selection:bg-[#c2fd52] selection:text-black pb-20">
+      {/* NAVBAR UTAMA YANG KITA BUAT */}
+      <Navbar />
 
-      {/* HERO SECTION */}
-      <header className="relative px-6 py-20 max-w-7xl mx-auto flex flex-col items-center text-center">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#1f3325] via-[#141c18] to-[#141c18] opacity-80 rounded-3xl"></div>
-        
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-tight mb-6">
-          Temukan & Pesan Lapangan <span className="text-[#c2fd52]">Tanpa Ribet.</span>
+      {/* HERO SECTION + AI SEARCH NIA */}
+      <header className="px-6 py-16 max-w-4xl mx-auto text-center">
+        <span className="bg-[#c2fd52]/10 border border-[#c2fd52]/30 text-[#c2fd52] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+          🤖 Smart Assistant Nia (AI Powered)
+        </span>
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mt-6 mb-4">
+          Tanya Jadwal Lapangan <span className="text-[#c2fd52]">Ke AI Nia</span>
         </h1>
-        <p className="text-gray-400 max-w-xl mb-10 text-sm md:text-base">
-          Cari jadwal kosong dalam hitungan detik menggunakan Smart Assistant <span className="text-white font-semibold">"Nia"</span> atau pilih langsung slot favoritmu.
+        <p className="text-gray-400 text-sm md:text-base mb-8">
+          Ketik kebutuhan jadwalmu di bawah (contoh: "Cari jadwal kosong besok jam 7 malam") dan Nia akan langsung mencarikan slotnya untukmu.
         </p>
 
-        {/* SEARCH BAR BOX */}
-        <form onSubmit={handleSearch} className="bg-[#1f2b24] p-3 rounded-2xl border border-white/10 flex flex-col md:flex-row gap-3 w-full max-w-2xl shadow-2xl">
-          <div className="flex-1 flex items-center bg-[#141c18] px-4 py-3 rounded-xl border border-white/5">
-            <span className="text-gray-400 mr-2">📅</span>
-            <input 
-              type="date" 
-              value={searchDate}
-              onChange={(e) => setSearchDate(e.target.value)}
-              className="bg-transparent w-full text-white outline-none text-sm cursor-pointer"
-            />
-          </div>
+        {/* Form Tanya AI */}
+        <form onSubmit={handleAskAI} className="bg-[#1f2b24] p-3 rounded-2xl border border-white/10 flex flex-col sm:flex-row gap-3 shadow-2xl">
+          <input 
+            type="text" 
+            value={aiQuery}
+            onChange={(e) => setAiQuery(e.target.value)}
+            placeholder="Tanya AI Nia (misal: Ada jadwal kosong besok?)..." 
+            className="flex-1 bg-[#141c18] px-4 py-3 rounded-xl border border-white/5 text-white outline-none text-sm"
+          />
           <button 
             type="submit" 
-            className="bg-[#c2fd52] text-black font-bold px-8 py-3 rounded-xl hover:bg-[#b0ea40] transition flex items-center justify-center gap-2"
+            className="bg-[#c2fd52] text-black font-bold px-6 py-3 rounded-xl hover:bg-[#b0ea40] transition"
           >
-            <span>Cari Jadwal</span>
-            <span>→</span>
+            {loading ? 'Mencari...' : 'Tanya Nia ⚡'}
           </button>
         </form>
 
-        {/* QUICK TAGS */}
-        <div className="flex flex-wrap justify-center gap-3 mt-6 text-xs text-gray-400">
-          <span className="text-gray-500">Paling dicari:</span>
-          <span className="bg-white/5 px-3 py-1 rounded-full border border-white/10">Futsal Indoor</span>
-          <span className="bg-white/5 px-3 py-1 rounded-full border border-white/10">Mini Soccer Malam</span>
-          <span className="bg-white/5 px-3 py-1 rounded-full border border-white/10">Weekend Slot</span>
-        </div>
+        {/* Hasil Respon AI */}
+        {aiResponse && (
+          <div className="mt-6 bg-[#1a2620] border border-[#c2fd52]/40 p-6 rounded-2xl text-left text-sm whitespace-pre-line shadow-xl">
+            <p className="font-bold text-[#c2fd52] mb-2">💬 Jawaban AI Nia:</p>
+            <div className="text-gray-200 leading-relaxed">
+              {aiResponse.split('\n').map((line, idx) => {
+                if (line.includes('http')) {
+                  const urlMatch = line.match(/(https?:\/\/[^\s)]+)/);
+                  const bookingUrl = urlMatch ? urlMatch[0] : '/venue';
+                  return (
+                    <div key={idx} className="my-2">
+                      <a href={bookingUrl} className="bg-[#c2fd52] text-black font-bold px-4 py-2 rounded-lg inline-block text-xs hover:bg-[#b0ea40]">
+                        🔗 Klik Langsung ke Form Pemesanan Slot Ini
+                      </a>
+                    </div>
+                  );
+                }
+                return <p key={idx}>{line}</p>;
+              })}
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* STATS SECTION */}
-      <section className="border-y border-white/10 bg-[#19241e]/50 py-8">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div>
-            <p className="text-2xl md:text-3xl font-bold text-[#c2fd52]">10+</p>
-            <p className="text-xs text-gray-400 mt-1">Lapangan Mitra</p>
-          </div>
-          <div>
-            <p className="text-2xl md:text-3xl font-bold text-white">100%</p>
-            <p className="text-xs text-gray-400 mt-1">Real-time Schedule</p>
-          </div>
-          <div>
-            <p className="text-2xl md:text-3xl font-bold text-[#c2fd52]">24/7</p>
-            <p className="text-xs text-gray-400 mt-1">AI Assistant Nia</p>
-          </div>
-          <div>
-            <p className="text-2xl md:text-3xl font-bold text-white">Fast</p>
-            <p className="text-xs text-gray-400 mt-1">Direct Booking Link</p>
-          </div>
-        </div>
-      </section>
-
-      {/* POPULAR FIELDS SECTION */}
-      <section id="lapangan" className="max-w-7xl mx-auto px-6 py-16">
+      {/* KATALOG 3 LAPANGAN */}
+      <section className="max-w-7xl mx-auto px-6 py-12 border-t border-white/10">
         <div className="flex justify-between items-end mb-8">
           <div>
-            <span className="text-[#c2fd52] text-xs font-bold tracking-widest uppercase">● POPULER</span>
-            <h2 className="text-2xl md:text-3xl font-bold mt-1">Lapangan Paling Diminati</h2>
+            <span className="text-[#c2fd52] text-xs font-bold tracking-widest uppercase">● PILIH COURT</span>
+            <h2 className="text-2xl md:text-3xl font-bold mt-1">Daftar Lapangan Arena Nias</h2>
           </div>
-          <button onClick={() => navigate('/booking')} className="text-xs text-gray-400 hover:text-[#c2fd52] transition">
-            Lihat semua →
+          <button onClick={() => navigate('/venue')} className="text-xs text-gray-400 hover:text-[#c2fd52] transition">
+            Lihat Detail Venue →
           </button>
         </div>
 
-        {/* GRID CARD LAPANGAN */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {schedules.length > 0 ? (
-            schedules.slice(0, 3).map((item) => (
-              <div key={item.id} className="bg-[#1a2620] border border-white/10 rounded-2xl overflow-hidden group hover:border-[#c2fd52]/50 transition">
-                <div className="h-48 bg-gradient-to-br from-gray-800 to-gray-900 relative flex items-center justify-center text-4xl">
-                  🏟️
-                  <span className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-[#c2fd52]">
-                    {item.status}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <h3 className="font-bold text-lg mb-1">{item.nama_lapangan}</h3>
-                  <p className="text-xs text-gray-400 mb-4">Tanggal: {item.tanggal?.split('T')[0]} | {item.jam_mulai} - {item.jam_selesai}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#c2fd52] font-bold">Tersedia</span>
-                    <button 
-                      onClick={() => navigate(`/booking?schedule_id=${item.id}`)}
-                      className="bg-white/10 hover:bg-[#c2fd52] hover:text-black text-xs font-semibold px-4 py-2 rounded-xl transition"
-                    >
-                      Booking Slot
-                    </button>
-                  </div>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {fields.map((field) => (
+            <div key={field.id} className="bg-[#1a2620] border border-white/10 rounded-2xl overflow-hidden group hover:border-[#c2fd52]/50 transition flex flex-col shadow-lg">
+              <div className="h-48 overflow-hidden relative">
+                <img src={field.foto} alt={field.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                <span className="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-[#c2fd52]">
+                  {field.price}
+                </span>
               </div>
-            ))
-          ) : (
-            <div className="col-span-3 text-center py-12 text-gray-500 bg-[#19241e]/30 rounded-2xl border border-white/5">
-              Belum ada data jadwal lapangan aktif. Silakan tambahkan via backend atau dashboard admin.
+              <div className="p-6 flex-1 flex flex-col">
+                <h3 className="font-bold text-xl mb-1 text-white">{field.name}</h3>
+                <p className="text-xs text-[#c2fd52] font-semibold mb-3">{field.type}</p>
+                <div className="bg-[#141c18] p-3 rounded-xl border border-white/5 mb-6 text-xs text-gray-300">
+                  <span className="font-bold block text-white mb-1">Fasilitas:</span>
+                  {field.fasilitas}
+                </div>
+                <button 
+                  onClick={() => navigate('/venue')}
+                  className="mt-auto w-full bg-[#c2fd52] hover:bg-[#b0ea40] text-black text-sm font-bold py-3 rounded-xl transition shadow-md"
+                >
+                  Pilih & Booking Lapangan →
+                </button>
+              </div>
             </div>
-          )}
+          ))}
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t border-white/10 bg-[#111815] py-12 text-gray-400 text-xs">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded-full bg-[#c2fd52] flex items-center justify-center font-bold text-black text-xs">⚽</div>
-              <span className="font-bold text-white text-base">ARENA NIAS</span>
-            </div>
-            <p className="text-gray-500 leading-relaxed">
-              Sistem pemesanan lapangan berbasis AI Chatbot (Nia) untuk kemudahan reservasi olahraga Anda.
-            </p>
-          </div>
-          <div>
-            <p className="font-bold text-white mb-3">Menu Utama</p>
-            <ul className="space-y-2">
-              <li><a href="#lapangan" className="hover:text-white transition">Cari Lapangan</a></li>
-              <li><a href="#fitur" className="hover:text-white transition">Smart Assistant Nia</a></li>
-              <li><a href="/booking" className="hover:text-white transition">Halaman Booking</a></li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-bold text-white mb-3">Kontak</p>
-            <p className="text-gray-500 mb-1">Email: support@arenanias.com</p>
-            <p className="text-gray-500">WhatsApp: +62 811-9991-5000</p>
-          </div>
-          <div>
-            <p className="font-bold text-white mb-3">Kampus / Tim</p>
-            <p className="text-gray-500">Final Project PAW — Kelompok 10</p>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-6 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center">
-          <p>© 2026 Arena Nias. All rights reserved.</p>
-          <p className="mt-2 md:mt-0 text-gray-600">Built with React, Vite & Tailwind CSS</p>
-        </div>
-      </footer>
-
-      {/* Chatbot Widget Nia di Pojok Kanan Bawah */}
       <Chatbot />
     </div>
   );
