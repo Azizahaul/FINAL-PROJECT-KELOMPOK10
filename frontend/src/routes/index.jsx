@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
-import Booking from '../pages/Booking'; // Import halaman Booking yang baru dibuat
+import Booking from '../pages/Booking';
+import LoginAdmin from '../pages/LoginAdmin';
+import DashboardAdmin from '../pages/DashboardAdmin';
 
 /**
  * Semua route halaman didaftarin di sini. App.jsx cuma manggil
@@ -11,7 +13,13 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/booking" element={<Booking />} /> {/* Daftarkan rute booking */}
+      <Route path="/booking" element={<Booking />} />
+      
+      {/* Route untuk Admin */}
+      <Route path="/login" element={<LoginAdmin />} />
+      <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+      
+      {/* Route Chatbot, Jadwal, dan Kategori akan kita tambahkan di sini nanti */}
     </Routes>
   );
 }
